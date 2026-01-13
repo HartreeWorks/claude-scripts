@@ -2,22 +2,106 @@
 
 A collection of utility scripts for [Claude Code](https://claude.com/claude-code).
 
-These scripts are used with Claude Code hooks, commands, and other automation workflows.
+These scripts are used with Claude Code hooks to add safety checks, notifications, and other automation.
 
-## Installation
+## Scripts
 
-Copy any script to your `~/.claude/scripts/` directory and ensure it's executable:
+### bash-safety-hook.py
 
-```bash
-chmod +x ~/.claude/scripts/script-name.py
-```
+A PreToolUse hook that detects dangerous bash command patterns and asks for user confirmation before allowing execution.
 
-## Available scripts
+**What it catches:**
+- Remote code execution (piping curl/wget to bash)
+- Catastrophic deletions (rm -rf /, rm -rf ~)
+- Data exfiltration (sending sensitive files over network)
+- Persistence mechanisms (crontab, launchd, shell profile modifications)
+- Privilege escalation (chmod +s, setuid)
+- System file modifications (writes to /etc/)
 
-| Script | Description |
-|--------|-------------|
-| [bash-safety-hook.py](./bash-safety-hook.py) | PreToolUse hook that detects dangerous bash patterns (RCE, catastrophic deletions, exfiltration, persistence) and asks for user confirmation |
-| [notify.py](./notify.py) | Notification hook that shows desktop notifications for Claude Code events using terminal-notifier |
+**Installation:**
+
+1. Copy the script:
+   ```bash
+   curl -o ~/.claude/scripts/bash-safety-hook.py \
+     https://raw.githubusercontent.com/HartreeWorks/claude-scripts/main/bash-safety-hook.py
+   ```
+
+2. Add to your `~/.claude/settings.json`:
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [
+         {
+           "matcher": "Bash",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "python3 ~/.claude/scripts/bash-safety-hook.py"
+             }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+---
+
+### notify.py
+
+A notification hook that shows desktop notifications when Claude Code needs your attention (permission prompts, questions, task completion).
+
+**Features:**
+- Shows the project directory name in the notification title
+- Extracts the actual question text from AskUserQuestion prompts
+- Displays context from the conversation transcript
+- Ignores idle_prompt notifications to reduce noise
+
+**Prerequisites:**
+- macOS with [terminal-notifier](https://github.com/julienXX/terminal-notifier) installed:
+  ```bash
+  brew install terminal-notifier
+  ```
+
+**Installation:**
+
+1. Copy the script:
+   ```bash
+   curl -o ~/.claude/scripts/notify.py \
+     https://raw.githubusercontent.com/HartreeWorks/claude-scripts/main/notify.py
+   ```
+
+2. Add to your `~/.claude/settings.json`:
+   ```json
+   {
+     "hooks": {
+       "Notification": [
+         {
+           "matcher": "",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "python3 ~/.claude/scripts/notify.py Notification"
+             }
+           ]
+         }
+       ],
+       "Stop": [
+         {
+           "matcher": "",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "python3 ~/.claude/scripts/notify.py Stop"
+             }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+---
 
 ## About
 
