@@ -17,6 +17,7 @@ chmod +x ~/.claude/scripts/script-name.py
 | Script | Description |
 |--------|-------------|
 | [bash-safety-hook.py](./bash-safety-hook.py) | PreToolUse hook that detects dangerous bash patterns (RCE, catastrophic deletions, exfiltration, persistence) and asks for user confirmation |
+| [notify.py](./notify.py) | Notification hook that shows desktop notifications for Claude Code events using terminal-notifier |
 
 ## About
 
